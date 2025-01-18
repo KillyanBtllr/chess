@@ -10,10 +10,12 @@ public class Client {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
+    private GameStartListener gameStartListener; // Interface pour notifier Main
 
-    public Client(String serverAddress, int serverPort) {
+    public Client(String serverAddress, int serverPort, GameStartListener gameStartListener) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
+        this.gameStartListener = gameStartListener;
     }
 
     public boolean connectToServer() {
@@ -35,9 +37,9 @@ public class Client {
                 String message;
                 while ((message = in.readLine()) != null) {
                     System.out.println("Message reçu du serveur : " + message);
-                    if (message.equals("Démarrez le jeu !")) {
-                        // Lancer le jeu
-                        launch();
+                    if (message.equals("Le jeu commence maintenant !")) {
+                        // Notifier Main.java pour démarrer le jeu
+                        gameStartListener.onGameStart();
                     }
                 }
             } catch (IOException e) {
@@ -63,9 +65,7 @@ public class Client {
         }
     }
 
-    public void launch() {
-        // Code pour démarrer le jeu (initialisation de l'interface du jeu)
-        System.out.println("Le jeu commence maintenant !");
-        // Vous pouvez appeler la méthode start() de JavaFX ici si nécessaire.
+    public interface GameStartListener {
+        void onGameStart(); // Méthode à implémenter dans Main.java pour démarrer le jeu
     }
 }
