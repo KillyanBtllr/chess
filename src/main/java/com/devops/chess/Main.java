@@ -1,15 +1,15 @@
 package com.devops.chess;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import com.devops.chess.controllers.AuthController;
 import com.devops.chess.network.Client;
 
-public class Main extends Application implements Client.GameStartListener {
+public class Main extends Application {
 
     private static final int SERVER_PORT = 8080;
+    private static boolean isLaunched = false; // Indique si l'application JavaFX a démarré
 
     @Override
     public void start(Stage stage) {
@@ -21,33 +21,20 @@ public class Main extends Application implements Client.GameStartListener {
         stage.show();
     }
 
-    @Override
-    public void init() throws Exception {
+    public static synchronized void launchJavaFX(String[] args) {
+        if (!isLaunched) {
+            isLaunched = true;
+            launch(args);
+        }
+    }
+
+    public static void main(String[] args) {
         // Connexion au serveur
-        Client client = new Client("localhost", SERVER_PORT, this);  // Passer la référence de Main à Client
+        Client client = new Client("localhost", SERVER_PORT);
         if (client.connectToServer()) {
             client.listenForMessages();
         } else {
             System.err.println("Impossible de se connecter au serveur.");
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void onGameStart() {
-        // Cette méthode est appelée lorsque le message de démarrage du jeu est reçu
-        System.out.println("Le jeu commence maintenant !");
-        // Lancez l'interface de jeu ici
-        // Si vous souhaitez démarrer un autre type d'interface ou initialiser des scènes, vous pouvez appeler "launch"
-        Platform.runLater(() -> {
-            // Initialisez l'interface du jeu ici, vous pouvez charger une nouvelle scène
-            Stage stage = new Stage();
-            // Exemple : changez la scène actuelle pour une scène de jeu
-            stage.setTitle("Jeu d'Échecs");
-            stage.show();
-        });
     }
 }

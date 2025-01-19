@@ -1,5 +1,7 @@
 package com.devops.chess.network;
 
+import com.devops.chess.Main;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -10,12 +12,10 @@ public class Client {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private GameStartListener gameStartListener; // Interface pour notifier Main
 
-    public Client(String serverAddress, int serverPort, GameStartListener gameStartListener) {
+    public Client(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
-        this.gameStartListener = gameStartListener;
     }
 
     public boolean connectToServer() {
@@ -37,9 +37,9 @@ public class Client {
                 String message;
                 while ((message = in.readLine()) != null) {
                     System.out.println("Message reçu du serveur : " + message);
-                    if (message.equals("Le jeu commence maintenant !")) {
-                        // Notifier Main.java pour démarrer le jeu
-                        gameStartListener.onGameStart();
+                    if (message.equals("Démarrez le jeu !")) {
+                        // Lancer le jeu
+                        launch();
                     }
                 }
             } catch (IOException e) {
@@ -65,7 +65,10 @@ public class Client {
         }
     }
 
-    public interface GameStartListener {
-        void onGameStart(); // Méthode à implémenter dans Main.java pour démarrer le jeu
+    public void launch() {
+        // Démarre JavaFX si ce n'est pas déjà fait
+        Main.launchJavaFX(new String[]{});
+        System.out.println("Le jeu commence maintenant !");
     }
+
 }
